@@ -8,6 +8,8 @@
 
 # Python (pymobiledevice3 tooling under scripts/ or iPhoneMirror.USB)
 .venv/
+scripts/pmd3-venv/
+scripts/spike-output/
 __pycache__/
 *.pyc
 
