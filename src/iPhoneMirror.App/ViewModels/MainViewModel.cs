@@ -3,12 +3,16 @@ using iPhoneMirror.App.Commands;
 using iPhoneMirror.Core.Interfaces;
 using iPhoneMirror.Core.Models;
 using iPhoneMirror.USB.DeviceDiscovery;
+using iPhoneMirror.USB.Pairing;
 
 namespace iPhoneMirror.App.ViewModels;
 
 public sealed class MainViewModel : ViewModelBase
 {
+    private static readonly TimeSpan PairingWaitTimeout = TimeSpan.FromSeconds(20);
+
     private readonly IDeviceDiscoveryService _deviceDiscoveryService;
+    private readonly IPairingService _pairingService;
 
     private ConnectionState _state = ConnectionState.Disconnected;
     private string _statusText = "iPhone Not Connected";
@@ -17,13 +21,14 @@ public sealed class MainViewModel : ViewModelBase
     private string _latencyText = "--";
     private string _usbText = "Disconnected";
 
-    public MainViewModel() : this(new Pymobiledevice3DeviceDiscoveryService())
+    public MainViewModel() : this(new Pymobiledevice3DeviceDiscoveryService(), new Pymobiledevice3PairingService())
     {
     }
 
-    public MainViewModel(IDeviceDiscoveryService deviceDiscoveryService)
+    public MainViewModel(IDeviceDiscoveryService deviceDiscoveryService, IPairingService pairingService)
     {
         _deviceDiscoveryService = deviceDiscoveryService;
+        _pairingService = pairingService;
         DetectCommand = new RelayCommand(OnDetect, () => _state == ConnectionState.Disconnected);
         ConnectCommand = new RelayCommand(OnConnect, () => _state == ConnectionState.WaitingForTrust);
     }
@@ -75,7 +80,9 @@ public sealed class MainViewModel : ViewModelBase
 
     public RelayCommand ConnectCommand { get; }
 
-    private async void OnDetect()
+    private async void OnDetect() => await DetectAsync();
+
+    public async Task DetectAsync()
     {
         State = ConnectionState.Detecting;
         StatusText = "Looking for iPhone...";
@@ -118,9 +125,53 @@ public sealed class MainViewModel : ViewModelBase
         }
     }
 
-    private void OnConnect()
+    private static readonly string PairingGuidance =
+        "Connect your iPhone using USB.\n\n" +
+        "1. Unlock your iPhone.\n" +
+        "2. Tap \"Trust\" if prompted.\n" +
+        "3. Enter your iPhone passcode.";
+
+    private async void OnConnect() => await ConnectAsync();
+
+    public async Task ConnectAsync()
     {
-        State = ConnectionState.Error;
-        StatusText = "Connect not yet implemented (Milestone 3: pairing)";
+        State = ConnectionState.Pairing;
+        StatusText = PairingGuidance;
+
+        try
+        {
+            var outcome = await _pairingService.EnsurePairedAsync(PairingWaitTimeout);
+
+            switch (outcome)
+            {
+                case PairingOutcome.Paired:
+                    State = ConnectionState.Connected;
+                    StatusText = "iPhone connected.\n\nScreen mirroring isn't wired up yet (Milestone 4).";
+                    break;
+
+                case PairingOutcome.WaitingForUserTrust:
+                    State = ConnectionState.WaitingForTrust;
+                    StatusText = PairingGuidance + "\n\nStill waiting - click Connect again once you've responded.";
+                    break;
+
+                case PairingOutcome.NoDeviceConnected:
+                    State = ConnectionState.Disconnected;
+                    UsbText = "Disconnected";
+                    StatusText = "iPhone disconnected. Reconnect it and click Detect again.";
+                    break;
+
+                case PairingOutcome.Failed:
+                default:
+                    State = ConnectionState.WaitingForTrust;
+                    StatusText = "Pairing failed. Please try again.\n\n" + PairingGuidance;
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            State = ConnectionState.WaitingForTrust;
+            StatusText = "Pairing failed. Please try again.\n\n" + PairingGuidance;
+            System.Diagnostics.Debug.WriteLine(ex);
+        }
     }
 }

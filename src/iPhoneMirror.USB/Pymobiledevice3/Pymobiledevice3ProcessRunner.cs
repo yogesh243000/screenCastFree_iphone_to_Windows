@@ -39,7 +39,25 @@ public static class Pymobiledevice3ProcessRunner
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
 
-        await process.WaitForExitAsync(cancellationToken);
+        try
+        {
+            await process.WaitForExitAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            // WaitForExitAsync does not kill the process on cancellation - without this it
+            // would keep running (and, for `lockdown pair`, keep the Trust dialog logic alive)
+            // after the caller has already given up and moved the UI to a "retry" state.
+            try
+            {
+                process.Kill(entireProcessTree: true);
+            }
+            catch (InvalidOperationException)
+            {
+                // already exited between the cancellation and the kill attempt
+            }
+            throw;
+        }
 
         return new ProcessResult(process.ExitCode, stdout.ToString(), stderr.ToString());
     }
