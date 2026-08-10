@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/iPhoneMirror.App/iPhoneMirror.App.csproj" />
+    <Project Path="src/iPhoneMirror.Core/iPhoneMirror.Core.csproj" />
+    <Project Path="src/iPhoneMirror.OBS/iPhoneMirror.OBS.csproj" />
+    <Project Path="src/iPhoneMirror.USB/iPhoneMirror.USB.csproj" />
+    <Project Path="src/iPhoneMirror.Video/iPhoneMirror.Video.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/iPhoneMirror.Tests/iPhoneMirror.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,64 @@
+<Window x:Class="iPhoneMirror.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:iPhoneMirror.App.ViewModels"
+        mc:Ignorable="d"
+        Title="iPhone Mirror" Height="640" Width="420" MinHeight="480" MinWidth="360"
+        Background="{StaticResource WindowBackgroundBrush}">
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Preview area -->
+        <Border Grid.Row="0" Background="{StaticResource PreviewBackgroundBrush}" Margin="12,12,12,6">
+            <TextBlock Text="{Binding StatusText}"
+                       Foreground="{StaticResource MutedTextBrush}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       TextWrapping="Wrap" TextAlignment="Center" Margin="24" />
+        </Border>
+
+        <!-- Status / controls panel -->
+        <Border Grid.Row="1" Background="{StaticResource PanelBackgroundBrush}" Margin="12,6,12,12" Padding="16">
+            <StackPanel>
+                <TextBlock Text="{Binding StatusText}" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <Button Content="Detect iPhone" Command="{Binding DetectCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                    <Button Content="Connect" Command="{Binding ConnectCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="8,0,0,0" />
+                </StackPanel>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Foreground="{StaticResource MutedTextBrush}">
+                        <Run Text="FPS: " /><Run Text="{Binding FpsText, Mode=OneWay}" />
+                    </TextBlock>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Foreground="{StaticResource MutedTextBrush}">
+                        <Run Text="Resolution: " /><Run Text="{Binding ResolutionText, Mode=OneWay}" />
+                    </TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Foreground="{StaticResource MutedTextBrush}" Margin="0,4,0,0">
+                        <Run Text="Latency: " /><Run Text="{Binding LatencyText, Mode=OneWay}" />
+                    </TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Foreground="{StaticResource MutedTextBrush}" Margin="0,4,0,0">
+                        <Run Text="USB: " /><Run Text="{Binding UsbText, Mode=OneWay}" />
+                    </TextBlock>
+                </Grid>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

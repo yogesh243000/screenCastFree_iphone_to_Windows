@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\iPhoneMirror.Core\iPhoneMirror.Core.csproj" />
+    <ProjectReference Include="..\iPhoneMirror.USB\iPhoneMirror.USB.csproj" />
+    <ProjectReference Include="..\iPhoneMirror.Video\iPhoneMirror.Video.csproj" />
+    <ProjectReference Include="..\iPhoneMirror.OBS\iPhoneMirror.OBS.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+</Project>
